@@ -1,7 +1,11 @@
 <template>
+  <DsfrHeader
+    :logo-text="['Ministère', 'de l’intérieur', ]"
+    service-title="Cartographie RNA"
+  />
   <nav>
     <router-link to="/">
-      Home
+      Accueil
     </router-link> |
     <router-link to="/contact">
       Contact
