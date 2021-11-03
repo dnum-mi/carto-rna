@@ -3,7 +3,7 @@
     :logo-text="['Ministère', 'de l’intérieur', ]"
     service-title="Cartographie RNA"
   />
-  <nav>
+  <nav class="fr-container">
     <router-link to="/">
       Accueil
     </router-link> |

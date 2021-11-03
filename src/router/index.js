@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeSweetHome from '../views/HomeSweetHome.vue'
+import AppHome from '../views/AppHome.vue'
 import ContactMe from '../views/ContactMe.vue'
 
 const routes = [
@@ -7,7 +7,7 @@ const routes = [
     path: '/',
     alias: ['/home'],
     name: 'Home',
-    component: HomeSweetHome,
+    component: AppHome,
   },
   {
     path: '/contact',
