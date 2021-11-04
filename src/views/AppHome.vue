@@ -6,6 +6,26 @@ import AssoMap from '../components/AssoMap.vue'
 
 const adresseApiBaseUrl = 'https://api-adresse.data.gouv.fr/search/?q='
 
+const baseUrl = 'https://qualification.ines-api.dsic.minint.fr/gdr/v1/associations/search'
+
+function assoProjection ({
+  id_association: id,
+  adresse_siege: adresseSiege,
+  objet,
+  titre: { long: nom },
+  site_web: url,
+  etat,
+}) {
+  return {
+    id,
+    nom,
+    adresseSiege,
+    objet,
+    etat,
+    url,
+  }
+}
+
 export default defineComponent({
   name: 'HomeSweetHome',
   components: {
@@ -15,6 +35,8 @@ export default defineComponent({
   data () {
     return {
       query: '',
+      codeDept: '',
+      fuzzy: false,
       results: [],
       markers: undefined,
       center: undefined,
@@ -51,6 +73,13 @@ export default defineComponent({
       if (!this.query) {
         return
       }
+      const url = `${baseUrl}?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}&code_departement=${this.departement}`
+      fetch(url)
+        .then(res => res.json())
+        .then(({ associations, nombre }) => {
+          this.results = associations.map(assoProjection)
+          this.nombre = nombre
+        })
       fetch(adresseApiBaseUrl + this.query)
         .then(res => res.json())
         .then(apiResults => {
@@ -105,14 +134,32 @@ export default defineComponent({
   </h1>
   <main class="main  fr-container">
     <div class="search">
-      <DsfrSearchBar
-        v-model="query"
-        @keyup.arrow-up="previousResult()"
-        @keyup.arrow-down="nextResult()"
-        @keyup.escape="results = []"
-        @keyup.enter="setActiveMarker(results[activeResultIndex], activeResultIndex)"
-        @click.stop=""
-      />
+      <div class="inline">
+        <DsfrSearchBar
+          v-model="query"
+          @keyup.arrow-up="previousResult()"
+          @keyup.arrow-down="nextResult()"
+          @keyup.escape="results = []"
+          @keyup.enter="setActiveMarker(results[activeResultIndex], activeResultIndex)"
+          @click.stop=""
+        />
+        <DsfrToggleSwitch
+          v-model="fuzzy"
+          label="Orthographe approx."
+        />
+        <div>
+          <DsfrInput
+            v-model="codeDept"
+            placeholder="Code département"
+          />
+        </div>
+        <DsfrSelect
+          v-model="limit"
+          class="fr-ml-1v  fr-mb-0"
+          label="Nombre max de résultats :"
+          :options="[5, 10, 20]"
+        />
+      </div>
       <div
         v-show="results.length"
         class="search-results"
@@ -225,5 +272,40 @@ export default defineComponent({
 
 .search-results ul {
   list-style: none;
+}
+
+.inline {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+:deep(.fr-select-group) {
+  display: flex;
+  align-items: center;
+}
+:deep(.fr-input) {
+  margin-left: 0.5rem;
+}
+
+:deep(.fr-label) {
+  white-space: nowrap;
+}
+
+:deep(.fr-select) {
+  margin-top: 0;
+}
+
+:deep(.fr-toggle) {
+  position: relative;
+  top: 0.5rem;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+:deep(.fr-toggle label::after) {
+  top: 0;
+}
+:deep(.fr-toggle .after) {
+  top: 0;
 }
 </style>
