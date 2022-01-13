@@ -1,1 +1,15 @@
-https://api-adresse.data.gouv.fr/search/?q=dakar
+@apiBaseUrl = https://api-adresse.data.gouv.fr
+
+@apiSearchPath = /search
+@apiReversePath = /reverse
+
+@apiSearch = {{apiBaseUrl}}{{apiSearchPath}}/?q=
+@apiReverse = {{apiBaseUrl}}{{apiReversePath}}/?
+
+@query = dakar
+@reverseQuery = lon=2.37&lat=48.357
+
+{{apiSearch}}{{query}}
+
+###
+{{apiReverse}}{{reverseQuery}}
