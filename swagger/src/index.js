@@ -1,10 +1,13 @@
+const dotenv = require('dotenv')
 const express = require('express')
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
 
 const app = express()
 
-const port = 3010
+dotenv.config()
+
+const port = process.env.SWAGGER_PORT || 3010
 
 const swaggerDocument = YAML.load('./swagger.yaml')
 
