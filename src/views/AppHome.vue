@@ -6,13 +6,10 @@ import AssoMap from '../components/AssoMap.vue'
 
 const adresseApiBaseUrl = 'https://api-adresse.data.gouv.fr/search/?q='
 
-const baseUrl = 'https://qualification.ines-api.dsic.minint.fr/gdr/v1/associations/search'
+const baseUrl = import.meta.env.BASE_URL || 'https://ines-api.dsic.minint.fr/gdr/v1/associations/'
 
 function assoProjection ({
   id_association: id,
-  adresse_siege: adresseSiege,
-  objet,
-  titre: { long: nom },
   site_web: url,
   etat,
 }) {
@@ -42,9 +39,7 @@ export default defineComponent({
       center: undefined,
       activeResultIndex: undefined,
       assoInfo: undefined,
-      debouncedSearch: debounce(() => {
-        this.search()
-      }, { wait: 300 }),
+      debouncedSearch: debounce(() => { this.search() }, { wait: 300 }),
       resetResult: () => { this.result = [] },
     }
   },
@@ -76,10 +71,11 @@ export default defineComponent({
       const url = `${baseUrl}?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}&code_departement=${this.departement}`
       fetch(url)
         .then(res => res.json())
-        .then(({ associations, nombre }) => {
-          this.results = associations.map(assoProjection)
+        .then(({ features }) => {
+          this.results = features.map(assoProjection)
           this.nombre = nombre
         })
+        /*
       fetch(adresseApiBaseUrl + this.query)
         .then(res => res.json())
         .then(apiResults => {
@@ -97,6 +93,7 @@ export default defineComponent({
           })
           this.center = this.markers[0]
         })
+        */
     },
 
     nextResult () {
