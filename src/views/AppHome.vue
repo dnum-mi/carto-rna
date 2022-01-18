@@ -6,7 +6,7 @@ import AssoMap from '../components/AssoMap.vue'
 
 const adresseApiBaseUrl = 'https://api-adresse.data.gouv.fr/search/?q='
 
-const baseUrl = import.meta.env.BASE_URL || 'https://ines-api.dsic.minint.fr/gdr/v1/associations/'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'https://ines-api.dsic.minint.fr/gdr/v1/associations/'
 
 function assoProjection ({
   id_association: id,
@@ -34,6 +34,7 @@ export default defineComponent({
       query: '',
       codeDept: '',
       fuzzy: false,
+      limit: 5,
       results: [],
       markers: undefined,
       center: undefined,
