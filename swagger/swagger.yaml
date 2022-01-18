@@ -109,7 +109,15 @@ paths:
                 $ref: '#/components/schemas/associations'
         400:
           description: format incorrect
-          content:id_association
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        404:
+          description: le numéro d'association est inconnue
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/errorMessage'
         500:
           description: erreur technique

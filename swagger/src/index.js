@@ -28,14 +28,9 @@ app.get('/search', function searchController (req, res) {
       },
     })
   }
-  const limit = Number(limitAsString)
+  let limit = Number(limitAsString)
   if (!limit || !Number.isInteger(limit) || !Number.isFinite(limit || limit > 0)) {
-    res.status(400).json({
-      erreur: {
-        message: 'Le paramètre `limit` doit être un entier positif',
-        code: 1,
-      },
-    })
+    limit = 5
   }
   res.json({
     associations: [
