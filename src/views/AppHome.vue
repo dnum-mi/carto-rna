@@ -69,11 +69,11 @@ export default defineComponent({
       if (!this.query) {
         return
       }
-      const url = `${baseUrl}?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}&code_departement=${this.departement}`
+      const url = `${apiBaseUrl}search/?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}&code_departement=${this.departement}`
       fetch(url)
         .then(res => res.json())
-        .then(({ features }) => {
-          this.results = features.map(assoProjection)
+        .then(({ associations }) => {
+          this.results = associations.map(assoProjection)
           this.nombre = nombre
         })
         /*

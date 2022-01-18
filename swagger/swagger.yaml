@@ -109,15 +109,7 @@ paths:
                 $ref: '#/components/schemas/associations'
         400:
           description: format incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorMessage'
-        404:
-          description: le numéro d'association est inconnue
-          content:
-            application/json:
-              schema:
+          content:id_association
                 $ref: '#/components/schemas/errorMessage'
         500:
           description: erreur technique
@@ -153,198 +145,195 @@ paths:
 components:
   schemas:
     associations:
-      type: object
-      properties:
-        root:
-          type: array
-          items:
+      type: array
+      items:
+        type: object
+        properties:
+          id_association:
+            type: string
+            description: numéro de l'association débutant par W et composé de
+              9 chiffres, il s'agit du numéro RNA, identifiant national  de l'association.
+              Ce numéro est attribué automatiquement lors de la déclaration de
+              création d’une association.  Une association ne disposant pas d’un
+              numéro RNA s’en voit attribuer un à chaque modification effectuée
+              auprès des services de l’État  (modification de statuts ou des dirigeants
+              de l’associations). Le numéro figure alors sur le récépissé délivré
+              par la préfecture.
+          is_waldec:
+            type: boolean
+            description: association ayant une référence waldec
+          numero_rup:
+            type: boolean
+            description: association reconnue d'utilité publique
+          themes:
+            type: string
+          nature:
+            type: string
+          groupement:
+            type: string
+            enum:
+              - simple
+              - union
+              - federation
+          titre:
             type: object
             properties:
-              id_association:
+              long:
                 type: string
-                description: numéro de l'association débutant par W et composé de
-                  9 chiffres, il s'agit du numéro RNA, identifiant national  de l'association.
-                  Ce numéro est attribué automatiquement lors de la déclaration de
-                  création d’une association.  Une association ne disposant pas d’un
-                  numéro RNA s’en voit attribuer un à chaque modification effectuée
-                  auprès des services de l’État  (modification de statuts ou des dirigeants
-                  de l’associations). Le numéro figure alors sur le récépissé délivré
-                  par la préfecture.
-              is_waldec:
-                type: boolean
-                description: association ayant une référence waldec
-              numero_rup:
-                type: boolean
-                description: association reconnue d'utilité publique
-              themes:
+                description: raison sociale de l'association. Il s'agit d'une
+                  description courte mais exhaustive des activités de l'organisme.
+              court:
                 type: string
-              nature:
+                description: Utilisé par le JO comme destinataire de la facturation
+          objet:
+            type: string
+          objet_social:
+            type: string
+            description: Code obligatoire dans la nomenclature nationale
+          mandataires_sociaux:
+            type: array
+            items:
+              type: object
+              properties:
+                nom:
+                  type: string
+                prenom:
+                  type: string
+                fonction:
+                  type: string
+                dirigeant:
+                  type: boolean
+                date_naissance:
+                  type: string
+          adresse_siege:
+            type: object
+            properties:
+              complement:
                 type: string
-              groupement:
+                description: complément de l'adresse
+              numero_voie:
                 type: string
-                enum:
-                  - simple
-                  - union
-                  - federation
-              titre:
-                type: object
-                properties:
-                  long:
-                    type: string
-                    description: raison sociale de l'association. Il s'agit d'une
-                      description courte mais exhaustive des activités de l'organisme.
-                  court:
-                    type: string
-                    description: Utilisé par le JO comme destinataire de la facturation
-              objet:
+                description: numero de la voie
+              libelle_voie:
                 type: string
-              objet_social:
+                description: libelle de la voie
+              distribution:
                 type: string
-                description: Code obligatoire dans la nomenclature nationale
-              mandataires_sociaux:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    nom:
-                      type: string
-                    prenom:
-                      type: string
-                    fonction:
-                      type: string
-                    dirigeant:
-                      type: boolean
-                    date_naissance:
-                      type: string
-              adresse_siege:
-                type: object
-                properties:
-                  complement:
-                    type: string
-                    description: complément de l'adresse
-                  numero_voie:
-                    type: string
-                    description: numero de la voie
-                  libelle_voie:
-                    type: string
-                    description: libelle de la voie
-                  distribution:
-                    type: string
-                  code_insee:
-                    type: string
-                    description: code insee de la commune
-                  code_postal:
-                    type: string
-                    description: code postal de la commune
-              adresse_declarant:
-                type: object
-                properties:
-                  declarant:
-                    type: string
-                    description: nom patronymique du déclarant (présence temporaire)
-                  complement:
-                    type: string
-                    description: complement de l'adresse
-                  numero_voie:
-                    type: string
-                    description: numero de la voie
-                  libelle_voie:
-                    type: string
-                    description: libelle de la voie
-                  distribution:
-                    type: string
-                  code_insee:
-                    type: string
-                    description: code insee de la commune
-                  code_postal:
-                    type: string
-                    description: code postal de la commune
-                  pays:
-                    type: string
-              type_dirigeant:
+              code_insee:
                 type: string
-              site_internet:
+                description: code insee de la commune
+              code_postal:
                 type: string
-              autorisation_publication_web:
-                type: boolean
-                description: autorisation de publication sur le web
-              observation:
+                description: code postal de la commune
+          adresse_declarant:
+            type: object
+            properties:
+              declarant:
                 type: string
-              etat:
+                description: nom patronymique du déclarant (présence temporaire)
+              complement:
                 type: string
-                description: etat de l'association
-                enum:
-                  - active
-                  - dissoute
-                  - supprimee
-              date_creation:
+                description: complement de l'adresse
+              numero_voie:
                 type: string
-                description: date de création. Il s'agit du jour de dépôt du dossier
-                  de création de l'association à la Préfecture.
-                format: date
-              date_declaration:
+                description: numero de la voie
+              libelle_voie:
                 type: string
-                description: Jour de la dernière déclaration faîte par l'association.
-                format: date
-              date_publication:
+                description: libelle de la voie
+              distribution:
                 type: string
-                description: Jour de la publication au journal officiel de l'avis
-                  de création de l'association. Toutes les assoiations ne sont pas
-                  forcément 'déclarées'. La publication au Journal Officiel permet
-                  à l'association de devenir une personne morale, a contrario des
-                  'associations de fait', non déclarées au JO.
-                format: date
-              date_dissolution:
+              code_insee:
                 type: string
-                description: Si l'association est dissolue, ce champ indique la date
-                  de dissolution, autrement, il est indiqué 'null'
-                format: date
-              date_mise_ajour:
+                description: code insee de la commune
+              code_postal:
                 type: string
-                description: date de mise à jour de l'article
-                format: date-time
+                description: code postal de la commune
+              pays:
+                type: string
+          type_dirigeant:
+            type: string
+          site_internet:
+            type: string
+          autorisation_publication_web:
+            type: boolean
+            description: autorisation de publication sur le web
+          observation:
+            type: string
+          etat:
+            type: string
+            description: etat de l'association
+            enum:
+              - active
+              - dissoute
+              - supprimee
+          date_creation:
+            type: string
+            description: date de création. Il s'agit du jour de dépôt du dossier
+              de création de l'association à la Préfecture.
+            format: date
+          date_declaration:
+            type: string
+            description: Jour de la dernière déclaration faîte par l'association.
+            format: date
+          date_publication:
+            type: string
+            description: Jour de la publication au journal officiel de l'avis
+              de création de l'association. Toutes les assoiations ne sont pas
+              forcément 'déclarées'. La publication au Journal Officiel permet
+              à l'association de devenir une personne morale, a contrario des
+              'associations de fait', non déclarées au JO.
+            format: date
+          date_dissolution:
+            type: string
+            description: Si l'association est dissolue, ce champ indique la date
+              de dissolution, autrement, il est indiqué 'null'
+            format: date
+          date_mise_ajour:
+            type: string
+            description: date de mise à jour de l'article
+            format: date-time
         nombre_occurence:
           type: integer
       example:
         associations:
-          id_association: W751207013
-          is_waldec: true
-          numero_rup: ""
-          themes: ""
-          nature: D
-          groupement: simple
-          titre:
-            long: ACBB CLUB DES SUPPORTERS
-            court: ACBB CLUB DES SUPPORTERS
-          objet: "promouvoir et favoriser les activités sportives de l\x92ACBB"
-          objet_social: 11192.0
-          adresse_siege:
-            libelle: ""
-            numero_voie: 35
-            type_voie: RUE
-            libelle_voie: le Marois
-            distribution: ""
-            code_postal: 75016,
-            libelle_commune: Paris
-            code_insee: 75116
-          adresse_declarant:
-            libelle: ""
-            format_postal: ETAGE 7
-            libelle_voie: 35  rue le Marois
-            distribution: ""
-            code_postal: 75016
-            acheminement: Paris
-            pays: FRANCE
-          type_dirigeant: PM
-          site_web: ""
-          autorisation_publication_web: false
-          observation: ""
-          etat: active
-          date_creation: 2010-10-21
-          date_publication: 2010-11-06
-          date_declaration_dissolution: ""
-          date_derniere_declaration: 2010-10-21
-          derniere_maj: 2010-11-15 17:47:13.633268+01
+          - id_association: W751207013
+            is_waldec: true
+            numero_rup: ""
+            themes: ""
+            nature: D
+            groupement: simple
+            titre:
+              long: ACBB CLUB DES SUPPORTERS
+              court: ACBB CLUB DES SUPPORTERS
+            objet: "promouvoir et favoriser les activités sportives de l\x92ACBB"
+            objet_social: 11192.0
+            adresse_siege:
+              libelle: ""
+              numero_voie: 35
+              type_voie: RUE
+              libelle_voie: le Marois
+              distribution: ""
+              code_postal: 75016,
+              libelle_commune: Paris
+              code_insee: 75116
+            adresse_declarant:
+              libelle: ""
+              format_postal: ETAGE 7
+              libelle_voie: 35  rue le Marois
+              distribution: ""
+              code_postal: 75016
+              acheminement: Paris
+              pays: FRANCE
+            type_dirigeant: PM
+            site_web: ""
+            autorisation_publication_web: false
+            observation: ""
+            etat: active
+            date_creation: 2010-10-21
+            date_publication: 2010-11-06
+            date_declaration_dissolution: ""
+            date_derniere_declaration: 2010-10-21
+            derniere_maj: 2010-11-15 17:47:13.633268+01
         nombre: 1
     healthcheckMessage:
       type: object
