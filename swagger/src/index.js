@@ -67,7 +67,7 @@ app.get('/search', function searchController (req, res) {
           pays: 'FRANCE',
         },
         type_dirigeant: 'PM',
-        site_web: '',
+        site_web: 'https://duckduckgo.com',
         autorisation_publication_web: false,
         observation: '',
         etat: 'active',

@@ -3,23 +3,66 @@ import { defineComponent } from 'vue'
 import debounce from 'debounce-fn'
 
 import AssoMap from '../components/AssoMap.vue'
+import { createWebHistory } from 'vue-router'
 
 const adresseApiBaseUrl = 'https://api-adresse.data.gouv.fr/search/?q='
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'https://ines-api.dsic.minint.fr/gdr/v1/associations/'
 
-function assoProjection ({
+function assoProjection (asso) {
+  return {
+    ...asso,
+    text: `${asso.titre.court} (${asso.adresse_siege.code_postal})`,
+  }
+}
+
+function getPostalAddressFromAssoInfo ({ adresse_siege: { numero_voie, type_voie, libelle_voie, code_postal, libelle_commune } }) {
+  return `${numero_voie} ${type_voie} ${libelle_voie} ${code_postal} ${libelle_commune}`
+}
+
+function getCoordinatesFromPostalAddress (postalAddress) {
+  return fetch(adresseApiBaseUrl + postalAddress)
+    .then(res => res.json())
+    .then(apiReturn => apiReturn.features[0].geometry.coordinates.reverse())
+}
+
+function getColumns (asso, columns = Object.keys(asso)) {
+  return columns.map(key => asso[key])
+}
+
+function simplifyAsso ({
   id_association: id,
-  site_web: url,
+  site_web: site,
   etat,
+  objet: object,
+  adresse_siege: {
+    numero_voie: numeroVoie,
+    type_voie: typeVoie,
+    libelle_voie: voie,
+    libelle_commune: commune,
+    code_postal: cp,
+  },
+  titre: {
+    long: title,
+    court: shortTitle,
+  },
 }) {
   return {
     id,
-    nom,
-    adresseSiege,
-    objet,
-    etat,
-    url,
+    title,
+    object,
+    shortTitle,
+    fullAddress: `${numeroVoie} ${typeVoie.toLowerCase()} ${voie} ${commune} ${cp}`,
+    address: {
+      numeroVoie,
+      typeVoie: typeVoie.toLowerCase(),
+      voie,
+      commune,
+      cp,
+    },
+    site,
+    active: etat === 'active',
+    text: `${title} - ${cp} (${id})`,
   }
 }
 
@@ -31,6 +74,8 @@ export default defineComponent({
 
   data () {
     return {
+      rawAssociations: undefined,
+      asso: undefined,
       query: '',
       codeDept: '',
       fuzzy: false,
@@ -39,14 +84,14 @@ export default defineComponent({
       markers: undefined,
       center: undefined,
       activeResultIndex: undefined,
-      assoInfo: undefined,
       debouncedSearch: debounce(() => { this.search() }, { wait: 300 }),
-      resetResult: () => { this.result = [] },
+      resetResult: () => { this.results = [] },
     }
   },
 
   watch: {
-    query (newQuery, oldQuery) {
+    query (newQuery,
+      oldQuery) {
       const resultText = this.results[this.activeResultIndex]?.text
       if (!newQuery || newQuery === resultText) {
         this.results = []
@@ -73,28 +118,9 @@ export default defineComponent({
       fetch(url)
         .then(res => res.json())
         .then(({ associations }) => {
-          this.results = associations.map(assoProjection)
-          this.nombre = nombre
+          this.rawAssociations = associations
+          this.results = associations.map(simplifyAsso)
         })
-        /*
-      fetch(adresseApiBaseUrl + this.query)
-        .then(res => res.json())
-        .then(apiResults => {
-          this.results = apiResults.features.map(function ({
-            geometry: { coordinates },
-            properties: { label, context },
-          }) {
-            return {
-              text: label + ' (' + context + ')',
-              coordinates: coordinates.reverse(),
-            }
-          })
-          this.markers = this.results.map(function ({ coordinates }) {
-            return coordinates
-          })
-          this.center = this.markers[0]
-        })
-        */
     },
 
     nextResult () {
@@ -115,12 +141,20 @@ export default defineComponent({
       this.activeResultIndex--
     },
 
-    setActiveMarker (result, idx) {
+    async setActiveMarker (asso, idx) {
+      this.asso = asso
+      const postalAddress = asso.fullAddress
+      this.center = [0, 0]
+      const coord = await getCoordinatesFromPostalAddress(postalAddress)
       this.activeResultIndex = idx
-      this.center = result.coordinates
-      this.marker = result.coordinates
-      this.query = result.text
-      this.assoInfo = result.text
+      this.center = coord
+      this.markers = [{ coordinates: coord, asso }]
+      this.query = asso.text
+    },
+
+    actionWithMarker (marker) {
+      console.log('marker', marker.id)
+      this.asso = marker.asso
     },
   },
 })
@@ -166,13 +200,13 @@ export default defineComponent({
       >
         <ul>
           <li
-            v-for="(result, idx) of results"
+            v-for="(asso, idx) of results"
             :key="idx"
             class="search-result"
             :class="{ active: idx === activeResultIndex }"
-            @click="setActiveMarker(result, idx)"
+            @click="setActiveMarker(asso, idx)"
           >
-            {{ result.text }}
+            {{ asso.text }}
           </li>
         </ul>
       </div>
@@ -180,14 +214,25 @@ export default defineComponent({
     <div class="carto-container">
       <div class="asso-info">
         Informations sur l'association :
-        <div>
-          {{ assoInfo }}
-        </div>
+        <template v-if="asso">
+          <h4>
+            {{ asso.title }} <span class="small">({{ asso.id }})</span>
+          </h4>
+          <h6>
+            {{ asso.objet }}
+          </h6>
+          <p class="fr-mb-0">
+            {{ asso.address.numeroVoie }} {{ asso.address.typeVoie }} {{ asso.address.voie }}
+          </p>
+          <p>{{ asso.address.cp }} {{ asso.address.commune }}</p>
+          <a :href="asso.site">{{ asso.site }}</a>
+        </template>
       </div>
       <div class="map">
         <AssoMap
           :center="center"
           :markers="markers"
+          @click:marker="actionWithMarker($event)"
         />
       </div>
     </div>
@@ -195,6 +240,12 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.small {
+  color: var(--grey-850-200);
+  font-weight: normal;
+  font-size: 0.75em;
+  font-style: italic;
+}
 .carto-container {
   display: flex;
   margin: 0 auto;
@@ -256,15 +307,15 @@ export default defineComponent({
 
 .search-result.active,
 .search-result:hover {
-  background-color: var(--bf500);
+  background-color: var(--grey-50-1000);
   cursor: pointer;
-  color: white;
+  color: var(--grey-1000-50);
   font-weight: 700;
 }
 .search-result:hover::before,
 .search-result.active::before {
   content: "> ";
-  color: white;
+  color: var(--grey-1000-50);
   font-weight: 700;
 }
 
@@ -306,4 +357,5 @@ export default defineComponent({
 :deep(.fr-toggle .after) {
   top: 0;
 }
+
 </style>
