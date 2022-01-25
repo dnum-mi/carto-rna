@@ -1,0 +1,7 @@
+{
+  "dockerComposeFile": ["../.docker/docker-compose-dev.yml"],
+  "service": "front",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [3000],
+  "remoteUser": "node"
+}
