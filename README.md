@@ -8,6 +8,12 @@ Cloner le projet, puis installer les dépendances :
 npm install
 ```
 
+## Pour tester : configurer les variables d'environnements
+
+À la racine du projet, créer un fichier .env avec :
+
+VITE_API_BASE_URL=http://localhost:3010/
+
 ## Démarrer le front sans docker
 
 Lancer le projet en mode développement avec la commande :
