@@ -15,7 +15,7 @@ const swaggerDocument = YAML.load('./swagger.yaml')
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.use(cors({
-  origin: 'http://localhost:4000',
+  origin: '*',
 }))
 
 app.get('/search', function searchController (req, res) {
