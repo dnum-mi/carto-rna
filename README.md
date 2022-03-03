@@ -12,8 +12,27 @@ npm install
 
 À la racine du projet, créer un fichier .env avec :
 
+- pour l'usage d'un *bouchon* de test :
+
+
+```
 VITE_API_BASE_URL=http://localhost:3010/
 
+VITE_API_BAN_URL=https://api-adresse.data.gouv.fr/search
+
+VITE_API_ETABLISSEMENTS_PUBLICS_URL=https://etablissements-publics.api.gouv.fr/v3/
+```
+- sans utilisation d'un *bouchon* de test :
+
+
+```
+VITE_API_BASE_URL=https://<api.mi>/v1/associations/
+
+VITE_API_BAN_URL=https://api-adresse.data.gouv.fr/search
+
+VITE_API_ETABLISSEMENTS_PUBLICS_URL=https://etablissements-publics.api.gouv.fr/v3/
+
+```
 ## Démarrer le front sans docker
 
 Lancer le projet en mode développement avec la commande :
@@ -45,6 +64,6 @@ docker-compose -f .docker/docker-compose-dev.yml up
 
 ## Lancer le projet en production
 
-Il faut utiliser le docker-compose de production `.docker/docker-compose.yml`, ou 
+Il faut utiliser le docker-compose de production `.docker/docker-compose.yml`, ou
 bien utiliser le Dockerfile en donnant au moins comme build-args `VITE_API_BASE_URL`
-avec l’URL de l’API.
+avec l’URL de l’API et `VITE_API_BAN_URL` pour l'URL de l'API BAN.
