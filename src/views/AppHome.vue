@@ -5,8 +5,7 @@ import debounce from 'debounce-fn'
 import AssoMap from '../components/AssoMap.vue'
 import { createWebHistory } from 'vue-router'
 
-const adresseApiBaseUrl = 'https://api-adresse.data.gouv.fr/search/?q='
-
+const adresseApiBaseUrl = import.meta.env.VITE_API_BAN_URL
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'https://ines-api.dsic.minint.fr/gdr/v1/associations/'
 
 function assoProjection (asso) {
@@ -21,7 +20,7 @@ function getPostalAddressFromAssoInfo ({ adresse_siege: { numero_voie, type_voie
 }
 
 function getCoordinatesFromPostalAddress (postalAddress) {
-  return fetch(adresseApiBaseUrl + postalAddress)
+  return fetch(adresseApiBaseUrl + '/?q=' +postalAddress)
     .then(res => res.json())
     .then(apiReturn => apiReturn.features[0].geometry.coordinates.reverse())
 }
@@ -32,26 +31,47 @@ function getColumns (asso, columns = Object.keys(asso)) {
 
 function simplifyAsso ({
   id_association: id,
-  site_web: site,
-  etat,
+  themes: themes,
+  groupement: groupement,
+  titre: {
+    long: title,
+    court: shortTitle,
+  },
   objet: object,
+  objet_social: objetSocial,
   adresse_siege: {
     numero_voie: numeroVoie,
     type_voie: typeVoie,
     libelle_voie: voie,
     libelle_commune: commune,
     code_postal: cp,
+    code_insee: codeInsee,
+    code_departement: codeDepartement
   },
-  titre: {
-    long: title,
-    court: shortTitle,
+  adresse_declarant:{
+    libelle: libelle,
+    format_postal: formatPostal,
+    libelle_voie: libelleVoie,
+    distribution: distribution,
+    code_postal: cpAdresseDeclarant,
+    acheminement: acheminement,
+    pays: pays
   },
+  type_dirigeant: typeDirigeant,
+  site_web: site,
+  etat,
+  date_creation: dateCreation,
+  date_publication: datePublication,
+  date_declaration_dissolution: dateDissolution,
+  date_derniere_modification: dateDerniereModification,
+  derniere_maj: dateDerniereMiseAJour
 }) {
   return {
     id,
     title,
-    object,
     shortTitle,
+    object,
+    objetSocial,
     fullAddress: `${numeroVoie} ${typeVoie.toLowerCase()} ${voie} ${commune} ${cp}`,
     address: {
       numeroVoie,
@@ -59,10 +79,19 @@ function simplifyAsso ({
       voie,
       commune,
       cp,
+      codeInsee,
+      codeDepartement
     },
     site,
+    typeDirigeant,
+    etat,
     active: etat === 'active',
     text: `${title} - ${cp} (${id})`,
+    dateCreation,
+    dateDissolution,
+    datePublication,
+    dateDerniereModification,
+    dateDerniereMiseAJour
   }
 }
 
@@ -114,8 +143,16 @@ export default defineComponent({
       if (!this.query) {
         return
       }
-      const url = `${apiBaseUrl}search/?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}&code_departement=${this.departement}`
-      fetch(url)
+      const headers = { Accept: 'application/json' }
+      let url = ''
+
+      if (this.codeDept.length !== 0) {
+        url = `${apiBaseUrl}search?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}&code_departement=${this.codeDept}`
+      } else {
+        url = `${apiBaseUrl}search?q=${this.query}&limit=${this.limit}&fuzzy_match=${this.fuzzy}`
+      }
+
+      fetch(url, { headers })
         .then(res => res.json())
         .then(({ associations }) => {
           this.rawAssociations = associations
@@ -162,7 +199,7 @@ export default defineComponent({
 
 <template>
   <h1 class="fr-container">
-    Recherche Adresse
+     où se trouve l'association ?
   </h1>
   <main class="main  fr-container">
     <div class="search">
