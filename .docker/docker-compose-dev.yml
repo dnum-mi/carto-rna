@@ -10,6 +10,8 @@ services:
       args:
         - HTTP=${HTTP} # pour docker MinInt
         - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+        - VITE_API_BAN_URL=${VITE_API_BAN_URL}
+        - VITE_API_ETABLISSEMENTS_PUBLICS_URL=${VITE_API_ETABLISSEMENTS_PUBLICS_URL}
       dockerfile: .docker/Dockerfile
       target: dev
     volumes:
