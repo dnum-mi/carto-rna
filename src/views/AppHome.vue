@@ -7,6 +7,7 @@ import { createWebHistory } from 'vue-router'
 
 const adresseApiBaseUrl = import.meta.env.VITE_API_BAN_URL
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'https://ines-api.dsic.minint.fr/gdr/v1/associations/'
+const apiEtablissementsPublicsUrl = import.meta.env.VITE_API_ETABLISSEMENTS_PUBLICS_URL
 
 function assoProjection (asso) {
   return {
